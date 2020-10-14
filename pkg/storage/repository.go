@@ -3,6 +3,7 @@ package storage
 import (
 	"context"
 	"log"
+	"net/url"
 	"time"
 
 	"github.com/renanferr/swapi-golang-rest-api/pkg/adding"
@@ -11,40 +12,63 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
 const (
 	// CollectionPlanet identifier for the JSON collection of planets
-	DatabaseName     = "tech-challenge"
+	DatabaseName     = "swapi-golang-rest-api"
 	CollectionPlanet = "planets"
 )
 
 // Storage stores planet data in JSON files
 type Storage struct {
-	client *mongo.Client
+	uri       *url.URL
+	client    *mongo.Client
+	timeoutMS time.Duration
 }
 
 // NewStorage returns a new JSON  storage
-func NewStorage() (*Storage, error) {
-	var err error
+func NewStorage(uri string) *Storage {
+	s := &Storage{}
 
-	s := new(Storage)
-
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
-	s.client, err = mongo.Connect(ctx, options.Client().ApplyURI("mongodb://localhost:27017"))
-	defer func() {
-		if err = s.client.Disconnect(ctx); err != nil {
-			panic(err)
-		}
-	}()
+	u, err := url.Parse(uri)
 
 	if err != nil {
-		return nil, err
+		log.Fatalf("invalid MongoDB Connection URI: %v", err)
 	}
 
-	return s, nil
+	s.uri = u
+	s.client, err = mongo.NewClient(options.Client().ApplyURI(uri))
+
+	if err != nil {
+		log.Fatalf("error creating Mongo Client: %v", err)
+	}
+
+	return s
+}
+
+func (s *Storage) WithTimeout(timeout time.Duration) *Storage {
+	s.timeoutMS = timeout
+	return s
+}
+
+func (s *Storage) Connect(ctx context.Context) {
+	log.Println("connecting to MongoDB")
+	ctx, cancelFunc := context.WithTimeout(ctx, s.timeoutMS)
+	defer cancelFunc()
+	s.client.Connect(ctx)
+
+	if err := s.client.Ping(ctx, readpref.Primary()); err != nil {
+		log.Fatalf("MongoDB server did not respond successfully: %s", err.Error())
+	}
+}
+
+func (s *Storage) Disconnect(ctx context.Context) {
+	log.Println("disconnecting from MongoDB")
+	if err := s.client.Disconnect(ctx); err != nil {
+		panic(err)
+	}
 }
 
 // AddPlanet saves the given planet to the repository
@@ -62,7 +86,7 @@ func (s *Storage) AddPlanet(ctx context.Context, p adding.Planet) error {
 	b, err := bson.Marshal(planet)
 
 	if err != nil {
-		log.Fatalf("error marshaling planet: %v", err)
+		log.Fatalf("error marshalling planet: %v", err)
 	}
 
 	if _, err := s.client.Database(DatabaseName).Collection(CollectionPlanet).InsertOne(ctx, b); err != nil {
@@ -75,14 +99,20 @@ func (s *Storage) AddPlanet(ctx context.Context, p adding.Planet) error {
 func (s *Storage) GetPlanet(ctx context.Context, id string) (listing.Planet, error) {
 	var p Planet
 	var planet listing.Planet
+
 	oid, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		return planet, listing.ErrNotFound
 
 	}
+
 	filter := bson.M{"id": oid}
-	if err = s.client.Database(DatabaseName).Collection(CollectionPlanet).FindOne(ctx, filter).Decode(&p); err != nil {
-		// err handling omitted for simplicity
+
+	ctx, cancel := context.WithTimeout(ctx, s.timeoutMS)
+	defer cancel()
+
+	collection := s.client.Database(DatabaseName).Collection(CollectionPlanet)
+	if err = collection.FindOne(ctx, filter).Decode(&p); err != nil {
 		return planet, listing.ErrNotFound
 	}
 

@@ -4,8 +4,8 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi"
-	"github.com/go-chi/chi/middleware"
 	"github.com/renanferr/swapi-golang-rest-api/pkg/adding"
+	"github.com/renanferr/swapi-golang-rest-api/pkg/http/rest/middleware"
 	"github.com/renanferr/swapi-golang-rest-api/pkg/http/rest/planets"
 	"github.com/renanferr/swapi-golang-rest-api/pkg/listing"
 )

@@ -5,14 +5,15 @@ import (
 	"errors"
 )
 
-type Payload []*Planet
-
 // Event defines possible outcomes from the "adding actor"
 type Event int
 
 const (
 	// Done means finished processing successfully
 	Done Event = iota
+
+	// InvalidPlanet means the given planet is invalid
+	InvalidPlanet
 
 	// PlanetAlreadyExists means the given planet is a duplicate of an existing one
 	PlanetAlreadyExists
@@ -41,7 +42,13 @@ var ErrDuplicate = errors.New("planet already exists")
 
 // Service provides planet adding operations.
 type Service interface {
-	AddPlanet(context.Context, ...Planet)
+	// AddPlanet invokes the operations needed to save a planet
+	AddPlanet(context.Context, Planet) error
+}
+
+// PlanetsClient provides an interface to fetch extra planets info from a third-party API
+type PlanetsClient interface {
+	GetPlanetAppearances(context.Context, string) (int, error)
 }
 
 // Repository provides access to planet repository.
@@ -51,24 +58,21 @@ type Repository interface {
 }
 
 type service struct {
-	repo Repository
+	repo    Repository
+	planets PlanetsClient
 }
 
 // NewService creates an adding service with the necessary dependencies
-func NewService(r Repository) Service {
-	return &service{r}
+func NewService(r Repository, p PlanetsClient) Service {
+	return &service{r, p}
 }
 
 // AddPlanet adds the given planet(s) to the database
-func (s *service) AddPlanet(ctx context.Context, p Planet) {
-
-	validatePlanet(p)
-	for _, planet := range p {
-		_ = s.repo.AddPlanet(ctx, planet) // error handling omitted for simplicity
+func (s *service) AddPlanet(ctx context.Context, p Planet) error {
+	var err error
+	p.Appearances, err = s.planets.GetPlanetAppearances(ctx, p.Name)
+	if err != nil {
+		panic(err)
 	}
-
-}
-
-func getPlanetAppearances(p *Planet) {
-
+	return s.repo.AddPlanet(ctx, p)
 }

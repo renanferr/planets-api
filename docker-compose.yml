@@ -1,0 +1,41 @@
+version: "2"
+services:
+  app:
+    build: .
+    command: ./out/app
+    depends_on:
+      - db
+    ports:
+      - 8080:8080
+    networks:
+      - swapi_net
+    environment:
+      DB_CONNECTION_URI: mongodb://root:rootpass@db:27017/swapi-golang-rest-api?authSource=admin
+      DB_TIMEOUT_MS: 5000
+      APP_PORT: 8080
+  db:
+    image: mongo:latest
+    ports:
+      - 27017:27017
+    networks:
+      - swapi_net
+    environment:
+      MONGO_INITDB_DATABASE: swapi-golang-rest-api
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: rootpass
+  mongo-express:
+    image: mongo-express
+    container_name: mongo_express
+    restart: always
+    depends_on:
+      - db
+    ports:
+      - 8081:8081
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: rootpass
+    networks:
+      - swapi_net
+networks:
+  swapi_net:
+    driver: bridge
