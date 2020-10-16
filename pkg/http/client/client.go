@@ -1,9 +1,9 @@
-package fetching
 
 import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"net/url"
 	pathlib "path"
@@ -22,6 +22,7 @@ type query = map[string]string
 
 func NewClient(baseURL string) (*Client, error) {
 	parsed, err := url.Parse(baseURL)
+
 	if err != nil {
 		return &Client{}, err
 	}
@@ -33,20 +34,18 @@ func NewClient(baseURL string) (*Client, error) {
 }
 
 func (c *Client) newRequest(ctx context.Context, path string, query query) (*http.Request, error) {
-	u, err := url.Parse(pathlib.Join(c.baseURL.String(), path))
-	if err != nil {
-		return nil, err
-	}
+	url := c.baseURL
+	url.Path = pathlib.Join(url.Path, path)
 
-	q := u.Query()
+	q := url.Query()
 	q.Set("format", "json")
 	for k, v := range query {
 		q.Set(k, v)
 	}
 
-	u.RawQuery = q.Encode()
+	url.RawQuery = q.Encode()
 
-	return http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
+	return http.NewRequestWithContext(ctx, http.MethodGet, url.String(), nil)
 }
 
 func (c *Client) do(req *http.Request, v interface{}) (*http.Response, error) {
@@ -67,28 +66,4 @@ func (c *Client) do(req *http.Request, v interface{}) (*http.Response, error) {
 	}
 
 	return resp, nil
-}
-
-func (c *Client) GetPlanetByName(ctx context.Context, planetName string) (Planet, error) {
-	req, err := c.newRequest(ctx, "/planets", query{"name": planetName})
-	if err != nil {
-		return Planet{}, err
-	}
-
-	var planet Planet
-
-	if _, err = c.do(req, &planet); err != nil {
-		return Planet{}, err
-	}
-
-	return planet, nil
-}
-
-func (c *Client) GetPlanetAppearances(ctx context.Context, planetName string) (int, error) {
-	planet, err := c.GetPlanetByName(ctx, planetName)
-	if err != nil {
-		return 0, err
-	}
-
-	return len(planet.FilmURLs), nil
 }

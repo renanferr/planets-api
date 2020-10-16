@@ -2,8 +2,11 @@ package planets
 
 import (
 	"encoding/json"
+	"fmt"
+	"log"
 	"net/http"
 
+	"github.com/asaskevich/govalidator"
 	"github.com/go-chi/chi"
 	"github.com/renanferr/swapi-golang-rest-api/pkg/adding"
 	"github.com/renanferr/swapi-golang-rest-api/pkg/listing"
@@ -20,6 +23,11 @@ func Handler(a adding.Service, l listing.Service) *chi.Mux {
 	return r
 }
 
+type badRequestResponse struct {
+	Message string            `json:"message"`
+	Fields  map[string]string `json:"fields"`
+}
+
 // addPlanet returns a handler for POST /planets requests
 func addPlanet(s adding.Service) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -32,10 +40,19 @@ func addPlanet(s adding.Service) func(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		s.AddPlanet(r.Context(), newPlanet)
-
+		id, err := s.AddPlanet(r.Context(), newPlanet)
+		if err != nil {
+			errPayload, marshallErr := json.Marshal(&badRequestResponse{"error adding planet", govalidator.ErrorsByField(err)})
+			if marshallErr != nil {
+				log.Panicf("error marshalling bad request response: %s", marshallErr.Error())
+			}
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write(errPayload)
+			return
+		}
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode("New planet added.")
+		w.Header().Set("Location", fmt.Sprintf("/%s", id))
+		w.WriteHeader(http.StatusCreated)
 	}
 }
 

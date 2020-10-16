@@ -1,19 +1,22 @@
 version: "2"
 services:
   app:
+    container_name: golang_app
     build: .
     command: ./out/app
     depends_on:
-      - db
+      - mongo
     ports:
       - 8080:8080
     networks:
       - swapi_net
     environment:
-      DB_CONNECTION_URI: mongodb://root:rootpass@db:27017/swapi-golang-rest-api?authSource=admin
+      DB_CONNECTION_URI: mongodb://root:rootpass@mongo:27017/swapi-golang-rest-api?authSource=admin
       DB_TIMEOUT_MS: 5000
       APP_PORT: 8080
-  db:
+      PLANETS_API_BASE_URL: https://swapi.dev/api
+  mongo:
+    container_name: golang_mongodb
     image: mongo:latest
     ports:
       - 27017:27017
@@ -25,10 +28,9 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: rootpass
   mongo-express:
     image: mongo-express
-    container_name: mongo_express
-    restart: always
+    container_name: golang_mongo_express
     depends_on:
-      - db
+      - mongo
     ports:
       - 8081:8081
     environment:

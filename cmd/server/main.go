@@ -6,12 +6,13 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"os/signal"
 	"strconv"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/renanferr/swapi-golang-rest-api/pkg/adding"
-	"github.com/renanferr/swapi-golang-rest-api/pkg/fetching"
 	"github.com/renanferr/swapi-golang-rest-api/pkg/http/rest"
 	"github.com/renanferr/swapi-golang-rest-api/pkg/listing"
 	"github.com/renanferr/swapi-golang-rest-api/pkg/storage"
@@ -22,7 +23,7 @@ func main() {
 	timeoutStr := os.Getenv("DB_TIMEOUT_MS")
 	timeoutInt, err := strconv.Atoi(timeoutStr)
 	if err != nil {
-		log.Fatalf("couldn't use \"%s\" as database timeout", timeoutStr)
+		log.Fatalf("couldn't use \"%s\" as database timeout: %s", timeoutStr, err.Error())
 	}
 	timeoutMS := time.Duration(timeoutInt) * time.Millisecond
 
@@ -32,11 +33,11 @@ func main() {
 	s.Connect(ctx)
 	defer s.Disconnect(ctx)
 
-	fetcher, err := fetching.NewClient(os.Getenv("PLANETS_API_BASE_URL"))
+	planetsClient, err := client.NewPlanetsClient(os.Getenv("PLANETS_API_BASE_URL"))
 	if err != nil {
-		log.Fatalf("Error creating fetching client")
+		log.Fatalf("error creating fetching client: %s", err.Error())
 	}
-	adder := adding.NewService(s, fetcher)
+	adder := adding.NewService(s, planetsClient)
 	lister := listing.NewService(s)
 
 	router := rest.Handler(adder, lister)
@@ -45,6 +46,13 @@ func main() {
 	if !strings.HasPrefix(port, ":") {
 		port = fmt.Sprintf(":%s", port)
 	}
-	log.Printf("Starting server at %s", port)
-	log.Fatal(http.ListenAndServe(port, router))
+
+	go func() {
+		log.Printf("starting server at %s", port)
+		log.Fatal(http.ListenAndServe(port, router))
+	}()
+
+	ch := make(chan os.Signal, 1)
+	signal.Notify(ch, syscall.SIGTERM, syscall.SIGINT)
+	<-ch
 }

@@ -1,0 +1,133 @@
+openapi: 3.0.0
+info:
+  description: Example API
+  version: 1.0.0
+  title: Example
+servers:
+  - url: https://swapi-golang-rest-api.herokuapp.com
+    description: Server address
+tags:
+  - name: "SWAPI Golang REST API Challenge"
+paths:
+  /planets/{planetID}:
+    get:
+      operationId: "getPlanet"
+      summary: Get Planet
+      description: Gets an existing planet by its ID
+      parameters: 
+        - name: planetID
+          in: path
+          description: Planet ID
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListingPlanetSchema"
+              example:       
+                id: 5f877f2a77fe0165cb16202b
+                name: tatooine
+                climate: arid
+                terrain: desert
+                appearances: 5
+        "404":
+          description: "Not Found"
+  /planets:
+    get:
+      operationId: "listPlanets"
+      summary: List Planets
+      description: Lists existing planets
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ListingPlanetSchema"
+                example:
+                  - id: "5f877f2a77fe0165cb16202b"
+                    name: "tatooine"
+                    climate: "arid"
+                    terrain: "desert"
+                    appearances: 5
+                  - id: "5f87801877fe0165cb16202c"
+                    name: "alderaan"
+                    climate: "temperate"
+                    terrain: "grasslands"
+                    appearances: 2
+    post:
+      summary: Add Planet
+      description: Adds a new planet
+      operationId: addPlanet
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddingPlanetSchema'
+            example:
+              name: "tatooine"
+              climate: "arid"
+              terrain: "desert"
+      responses:
+        "201":
+          description: "Created"
+          headers:
+            Location:
+              description: "Relative URL from the Request URL to access the created resource. e. g.: \"Location\": \"/5f877f2a77fe0165cb16202b\""
+              schema:
+                type: string
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                    - message
+                properties:
+                    message:
+                      type: string
+              example:
+                message: "\"name\" property must be a string\""
+        "500":
+          description: "Internal server error"
+components:
+  schemas:
+    ListingPlanetSchema:
+      type: object
+      required:
+        - id
+        - name
+        - climate
+        - terrain
+      properties:            
+        id:
+          type: string
+        name:
+          type: string
+        climate:
+          type: string
+        terrain:
+          type: string
+        appearances:
+          type: number
+    AddingPlanetSchema:
+      type: object
+      required:
+        - name
+        - climate
+        - terrain
+      properties:            
+        name:
+          type: string
+        climate:
+          type: string
+        terrain:
+          type: string

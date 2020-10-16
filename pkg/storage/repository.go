@@ -2,6 +2,7 @@ package storage
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/url"
 	"time"
@@ -72,7 +73,7 @@ func (s *Storage) Disconnect(ctx context.Context) {
 }
 
 // AddPlanet saves the given planet to the repository
-func (s *Storage) AddPlanet(ctx context.Context, p adding.Planet) error {
+func (s *Storage) AddPlanet(ctx context.Context, p adding.Planet) (string, error) {
 
 	planet := Planet{
 		ID:          primitive.NewObjectID(),
@@ -86,13 +87,13 @@ func (s *Storage) AddPlanet(ctx context.Context, p adding.Planet) error {
 	b, err := bson.Marshal(planet)
 
 	if err != nil {
-		log.Fatalf("error marshalling planet: %v", err)
+		return "", fmt.Errorf("error marshalling planet: %v", err)
 	}
 
 	if _, err := s.client.Database(DatabaseName).Collection(CollectionPlanet).InsertOne(ctx, b); err != nil {
-		return err
+		return "", err
 	}
-	return nil
+	return planet.ID.Hex(), err
 }
 
 // Get returns a planet with the specified ID
@@ -106,7 +107,7 @@ func (s *Storage) GetPlanet(ctx context.Context, id string) (listing.Planet, err
 
 	}
 
-	filter := bson.M{"id": oid}
+	filter := bson.M{"_id": oid}
 
 	ctx, cancel := context.WithTimeout(ctx, s.timeoutMS)
 	defer cancel()
