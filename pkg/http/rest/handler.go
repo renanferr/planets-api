@@ -1,6 +1,7 @@
 package rest
 
 import (
+	"encoding/json"
 	"net/http"
 
 	"github.com/go-chi/chi"
@@ -11,7 +12,7 @@ import (
 	"github.com/renanferr/swapi-golang-rest-api/pkg/listing"
 )
 
-const docsDirRelativePath = "../../docs"
+const ApiPrefix = "/api"
 
 func Handler(a adding.Service, l listing.Service) http.Handler {
 	apiRouter := chi.NewRouter()
@@ -20,7 +21,16 @@ func Handler(a adding.Service, l listing.Service) http.Handler {
 	apiRouter.Mount("/planets", planets.Handler(a, l))
 
 	router := chi.NewRouter()
-	router.Mount("/api", apiRouter)
+
+	router.Get("/healthcheck", handleHealthcheck)
+
+	router.Mount(ApiPrefix, apiRouter)
 
 	return router
+}
+
+func handleHealthcheck(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+	w.Header().Add("Content-type", "application/json")
+	json.NewEncoder(w).Encode(map[string]bool{"alive": true})
 }

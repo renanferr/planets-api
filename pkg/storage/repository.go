@@ -103,7 +103,7 @@ func (s *Storage) GetPlanet(ctx context.Context, id string) (listing.Planet, err
 
 	oid, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
-		return planet, listing.ErrNotFound
+		return planet, listing.ErrPlanetNotFound
 
 	}
 
@@ -114,7 +114,7 @@ func (s *Storage) GetPlanet(ctx context.Context, id string) (listing.Planet, err
 
 	collection := s.client.Database(DatabaseName).Collection(CollectionPlanet)
 	if err = collection.FindOne(ctx, filter).Decode(&p); err != nil {
-		return planet, listing.ErrNotFound
+		return planet, listing.ErrPlanetNotFound
 	}
 
 	planet.ID = p.ID.Hex()

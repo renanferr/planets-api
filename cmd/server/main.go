@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/renanferr/swapi-golang-rest-api/pkg/adding"
+	"github.com/renanferr/swapi-golang-rest-api/pkg/http/client"
 	"github.com/renanferr/swapi-golang-rest-api/pkg/http/rest"
 	"github.com/renanferr/swapi-golang-rest-api/pkg/listing"
 	"github.com/renanferr/swapi-golang-rest-api/pkg/storage"
@@ -33,7 +34,7 @@ func main() {
 	s.Connect(ctx)
 	defer s.Disconnect(ctx)
 
-	planetsClient, err := client.NewPlanetsClient(os.Getenv("PLANETS_API_BASE_URL"))
+	planetsClient, err := client.NewClient(os.Getenv("PLANETS_API_BASE_URL"))
 	if err != nil {
 		log.Fatalf("error creating fetching client: %s", err.Error())
 	}

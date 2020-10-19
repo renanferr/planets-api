@@ -5,9 +5,8 @@ import (
 	"errors"
 )
 
-// ErrNotFound is used when a planet could not be found.
 var (
-	ErrNotFound = errors.New("planet not found")
+	ErrPlanetNotFound error = errors.New("planet not found")
 )
 
 // Repository provides access to the planet storage.

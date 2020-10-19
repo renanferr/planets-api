@@ -9,4 +9,5 @@ require (
 	github.com/prometheus/client_golang v1.7.1
 	github.com/slok/go-http-metrics v0.9.0
 	go.mongodb.org/mongo-driver v1.4.2
+	golang.org/x/net v0.0.0-20200822124328-c89045814202
 )

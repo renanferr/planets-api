@@ -7,7 +7,22 @@ import (
 	"github.com/asaskevich/govalidator"
 )
 
-type ErrInvalidPlanet = error
+// ValidationError defines the type for a validation error
+type ValidationError struct {
+	Err    error
+	Fields map[string]string
+}
+
+func NewValidationError(err error) *ValidationError {
+	return &ValidationError{
+		err,
+		govalidator.ErrorsByField(err),
+	}
+}
+
+func (e ValidationError) Error() string {
+	return e.Err.Error()
+}
 
 // Service provides planet adding operations.
 type Service interface {
@@ -60,10 +75,14 @@ func (s *service) AddPlanet(ctx context.Context, p Planet) (string, error) {
 
 	validationErr := <-validationErrChan
 	if validationErr != nil {
-		return "", validationErr.(ErrInvalidPlanet)
+		return "", NewValidationError(validationErr)
 	}
 
 	p.Appearances = <-appearancesChan
 
-	return s.repo.AddPlanet(ctx, p)
+	id, err := s.repo.AddPlanet(ctx, p)
+	if err != nil {
+		return "", err
+	}
+	return id, nil
 }

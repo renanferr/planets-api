@@ -2,11 +2,11 @@ package planets
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
 
-	"github.com/asaskevich/govalidator"
 	"github.com/go-chi/chi"
 	"github.com/renanferr/swapi-golang-rest-api/pkg/adding"
 	"github.com/renanferr/swapi-golang-rest-api/pkg/listing"
@@ -41,16 +41,23 @@ func addPlanet(s adding.Service) func(w http.ResponseWriter, r *http.Request) {
 		}
 
 		id, err := s.AddPlanet(r.Context(), newPlanet)
-		if err != nil {
-			errPayload, marshallErr := json.Marshal(&badRequestResponse{"error adding planet", govalidator.ErrorsByField(err)})
-			if marshallErr != nil {
-				log.Panicf("error marshalling bad request response: %s", marshallErr.Error())
+
+		var e *adding.ValidationError
+		if errors.As(err, &e) {
+			response, err := json.Marshal(&badRequestResponse{"error adding planet", e.Fields})
+			if err != nil {
+				log.Panicf("error marshalling bad request response: %s", err.Error())
 			}
 			w.WriteHeader(http.StatusBadRequest)
-			w.Write(errPayload)
+			w.Header().Set("Content-Type", "application/json")
+			w.Write(response)
 			return
 		}
-		w.Header().Set("Content-Type", "application/json")
+
+		if err != nil {
+			log.Panicf("error adding planet: %s", err)
+		}
+
 		w.Header().Set("Location", fmt.Sprintf("/%s", id))
 		w.WriteHeader(http.StatusCreated)
 	}
@@ -73,8 +80,8 @@ func getPlanet(s listing.Service) func(w http.ResponseWriter, r *http.Request) {
 		planet, err := s.GetPlanet(r.Context(), ID)
 		if err != nil {
 
-			if err == listing.ErrNotFound {
-				http.Error(w, "The planet you requested does not exist.", http.StatusNotFound)
+			if errors.Is(err, listing.ErrPlanetNotFound) {
+				http.Error(w, "", http.StatusNotFound)
 				return
 			}
 

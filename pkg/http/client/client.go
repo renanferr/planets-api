@@ -1,3 +1,4 @@
+package client
 
 import (
 	"context"
@@ -8,6 +9,10 @@ import (
 	"net/url"
 	pathlib "path"
 )
+
+type searchResult struct {
+	Planets []Planet `json:"results"`
+}
 
 // A Client communicates with SWAPI
 type Client struct {
@@ -48,18 +53,15 @@ func (c *Client) newRequest(ctx context.Context, path string, query query) (*htt
 	return http.NewRequestWithContext(ctx, http.MethodGet, url.String(), nil)
 }
 
-func (c *Client) do(req *http.Request, v interface{}) (*http.Response, error) {
+func (c *Client) do(req *http.Request, target interface{}) (*http.Response, error) {
 	req.Close = true
-
+	log.Printf("[%s] %s", req.Method, req.URL)
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
-
-	if v != nil {
-		err = json.NewDecoder(resp.Body).Decode(v)
-	}
+	err = json.NewDecoder(resp.Body).Decode(target)
 
 	if err != nil {
 		return nil, fmt.Errorf("error reading response from %s %s: %s", req.Method, req.URL.RequestURI(), err)

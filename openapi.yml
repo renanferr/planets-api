@@ -9,7 +9,15 @@ servers:
 tags:
   - name: "SWAPI Golang REST API Challenge"
 paths:
-  /planets/{planetID}:
+  /healthcheck:
+    get:
+      operationId: "healthcheck"
+      summary: Healthcheck
+      description: "Checks server health"
+      responses:
+          "200":
+            description: "OK"
+  /api/planets/{planetID}:
     get:
       operationId: "getPlanet"
       summary: Get Planet
@@ -36,7 +44,7 @@ paths:
                 appearances: 5
         "404":
           description: "Not Found"
-  /planets:
+  /api/planets:
     get:
       operationId: "listPlanets"
       summary: List Planets
