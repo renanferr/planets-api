@@ -1,4 +1,4 @@
-package adding
+package adding_test
 
 import (
 	"context"
@@ -6,17 +6,19 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/renanferr/swapi-golang-rest-api/pkg/adding"
+	mocks "github.com/renanferr/swapi-golang-rest-api/pkg/mocks/adding"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/net/idna"
 )
 
 func TestAddPlanet(t *testing.T) {
 	oid := primitive.NewObjectID()
-	r := NewRepositoryMock(oid.Hex(), nil)
-	c := NewClientMock(1, nil)
-	s := NewService(r, c)
+	r := mocks.NewRepositoryMock(oid.Hex(), nil)
+	c := mocks.NewPlanetsClientMock(1, nil)
+	s := adding.NewService(r, c)
 
-	var p Planet
+	var p adding.Planet
 	p.Name = "tatooine"
 	p.Climate = "arid"
 	p.Terrain = "desert"
@@ -37,28 +39,28 @@ func TestAddPlanet(t *testing.T) {
 
 func TestAddInvalidPlanet(t *testing.T) {
 
-	r := NewRepositoryMock("", nil)
-	c := NewClientMock(1, nil)
-	s := NewService(r, c)
+	r := mocks.NewRepositoryMock("", nil)
+	c := mocks.NewPlanetsClientMock(1, nil)
+	s := adding.NewService(r, c)
 
 	tt := []struct {
-		in  Planet
+		in  adding.Planet
 		out map[string]string
 	}{
 		{
-			Planet{"", "arid", "desert", 0},
+			adding.Planet{"", "arid", "desert", 0},
 			map[string]string{"name": "Missing required field"},
 		},
 		{
-			Planet{"tatooine", "", "desert", 0},
+			adding.Planet{"tatooine", "", "desert", 0},
 			map[string]string{"climate": "Missing required field"},
 		},
 		{
-			Planet{"tatooine", "arid", "", 0},
+			adding.Planet{"tatooine", "arid", "", 0},
 			map[string]string{"terrain": "Missing required field"},
 		},
 		{
-			Planet{"a", "", "desert", 0},
+			adding.Planet{"a", "", "desert", 0},
 			map[string]string{
 				"name":    "a does not validate as length(2|128)",
 				"climate": "Missing required field",
@@ -74,7 +76,7 @@ func TestAddInvalidPlanet(t *testing.T) {
 		if err == nil {
 			t.Error("expected error is `nil`")
 		}
-		var e *ValidationError
+		var e *adding.ValidationError
 		if errors.As(err, &e) {
 			if fmt.Sprint(e.Fields) != fmt.Sprint(tc.out) {
 				t.Errorf("unexpected result output. expected: %s; got: %s", fmt.Sprint(tc.out), fmt.Sprint(e.Fields))

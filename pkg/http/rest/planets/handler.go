@@ -18,14 +18,18 @@ func Handler(a adding.Service, l listing.Service) *chi.Mux {
 
 	r.Post("/", addPlanet(a))
 	r.Get("/", getPlanets(l))
-	r.Get("/:id", getPlanet(l))
+	r.Get("/{planetID}", getPlanet(l))
 
 	return r
 }
 
-type badRequestResponse struct {
+type validationErrorResponse struct {
 	Message string            `json:"message"`
 	Fields  map[string]string `json:"fields"`
+}
+
+type errorResponse struct {
+	Message string `json:"message"`
 }
 
 // addPlanet returns a handler for POST /planets requests
@@ -36,7 +40,12 @@ func addPlanet(s adding.Service) func(w http.ResponseWriter, r *http.Request) {
 		var newPlanet adding.Planet
 		err := decoder.Decode(&newPlanet)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
+			log.Printf("error decoding planet: %s", err.Error())
+			w.WriteHeader(http.StatusBadRequest)
+			w.Header().Set("Content-type", "application/json")
+			if err = json.NewEncoder(w).Encode(&errorResponse{"decoding error"}); err != nil {
+				log.Panicf("error encoding error response: %s", err)
+			}
 			return
 		}
 
@@ -44,13 +53,12 @@ func addPlanet(s adding.Service) func(w http.ResponseWriter, r *http.Request) {
 
 		var e *adding.ValidationError
 		if errors.As(err, &e) {
-			response, err := json.Marshal(&badRequestResponse{"error adding planet", e.Fields})
-			if err != nil {
-				log.Panicf("error marshalling bad request response: %s", err.Error())
-			}
 			w.WriteHeader(http.StatusBadRequest)
 			w.Header().Set("Content-Type", "application/json")
-			w.Write(response)
+			err := json.NewEncoder(w).Encode(&validationErrorResponse{"validation error", e.Fields})
+			if err != nil {
+				log.Panicf("error encoding bad request response: %s", err.Error())
+			}
 			return
 		}
 
@@ -75,13 +83,14 @@ func getPlanets(s listing.Service) func(w http.ResponseWriter, r *http.Request) 
 // getPlanet returns a handler for GET /planets/:id requests
 func getPlanet(s listing.Service) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		ID := chi.URLParam(r, "id")
+		ID := chi.URLParam(r, "planetID")
 
 		planet, err := s.GetPlanet(r.Context(), ID)
 		if err != nil {
 
 			if errors.Is(err, listing.ErrPlanetNotFound) {
-				http.Error(w, "", http.StatusNotFound)
+				log.Printf("Planet with ID %s not found", ID)
+				w.WriteHeader(http.StatusNotFound)
 				return
 			}
 

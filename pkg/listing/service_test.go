@@ -1,4 +1,4 @@
-package listing
+package listing_test
 
 import (
 	"context"
@@ -6,20 +6,22 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/renanferr/swapi-golang-rest-api/pkg/listing"
+	mocks "github.com/renanferr/swapi-golang-rest-api/pkg/mocks/listing"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func TestGetPlanet(t *testing.T) {
 	oid := primitive.NewObjectID()
 
-	var p Planet
+	var p listing.Planet
 	p.Name = "tatooine"
 	p.Climate = "arid"
 	p.Terrain = "desert"
 
-	r := NewRepositoryMock(p, nil)
+	r := mocks.NewRepositoryMock(p, nil)
 
-	s := NewService(r)
+	s := listing.NewService(r)
 
 	planet, err := s.GetPlanet(context.Background(), oid.Hex())
 
@@ -46,8 +48,8 @@ func TestGetPlanetNotFound(t *testing.T) {
 		primitive.NewObjectID().Hex(),
 	}
 
-	r := NewRepositoryMock(Planet{}, ErrPlanetNotFound)
-	s := NewService(r)
+	r := mocks.NewRepositoryMock(listing.Planet{}, listing.ErrPlanetNotFound)
+	s := listing.NewService(r)
 
 	for _, id := range tt {
 
@@ -57,7 +59,7 @@ func TestGetPlanetNotFound(t *testing.T) {
 			t.Error("expected error is nil")
 		}
 
-		if !errors.Is(err, ErrPlanetNotFound) {
+		if !errors.Is(err, listing.ErrPlanetNotFound) {
 			t.Errorf("unexpected error: %w", err)
 		}
 	}
@@ -66,7 +68,7 @@ func TestGetPlanetNotFound(t *testing.T) {
 
 func TestGetPlanets(t *testing.T) {
 
-	tt := [][]Planet{
+	tt := [][]listing.Planet{
 		{},
 		{
 			{
@@ -96,8 +98,8 @@ func TestGetPlanets(t *testing.T) {
 	}
 
 	for i, tc := range tt {
-		r := NewRepositoryMock(tt[i], nil)
-		s := NewService(r)
+		r := mocks.NewRepositoryMock(tt[i], nil)
+		s := listing.NewService(r)
 
 		planets := s.GetPlanets(context.Background())
 		if !reflect.DeepEqual(tc, planets) {

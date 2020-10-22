@@ -8,10 +8,16 @@ import (
 	"net/http"
 	"net/url"
 	pathlib "path"
+	"strings"
 )
 
 type searchResult struct {
 	Planets []Planet `json:"results"`
+}
+
+// HTTPClient interface
+type HTTPClient interface {
+	Do(req *http.Request) (*http.Response, error)
 }
 
 // A Client communicates with SWAPI
@@ -20,10 +26,8 @@ type Client struct {
 	baseURL *url.URL
 
 	// HTTP client used to communicate with the SWAPI
-	httpClient *http.Client
+	httpClient HTTPClient
 }
-
-type query = map[string]string
 
 func NewClient(baseURL string) (*Client, error) {
 	parsed, err := url.Parse(baseURL)
@@ -35,17 +39,18 @@ func NewClient(baseURL string) (*Client, error) {
 		baseURL:    parsed,
 		httpClient: http.DefaultClient,
 	}
+
 	return c, nil
 }
 
-func (c *Client) newRequest(ctx context.Context, path string, query query) (*http.Request, error) {
+func (c *Client) newRequest(ctx context.Context, path string, query url.Values) (*http.Request, error) {
 	url := c.baseURL
 	url.Path = pathlib.Join(url.Path, path)
 
 	q := url.Query()
 	q.Set("format", "json")
 	for k, v := range query {
-		q.Set(k, v)
+		q.Set(k, strings.Join(v, ","))
 	}
 
 	url.RawQuery = q.Encode()

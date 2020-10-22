@@ -16,7 +16,7 @@ import (
 	"github.com/renanferr/swapi-golang-rest-api/pkg/http/client"
 	"github.com/renanferr/swapi-golang-rest-api/pkg/http/rest"
 	"github.com/renanferr/swapi-golang-rest-api/pkg/listing"
-	"github.com/renanferr/swapi-golang-rest-api/pkg/storage"
+	"github.com/renanferr/swapi-golang-rest-api/pkg/storage/mongo"
 )
 
 func main() {
@@ -28,7 +28,7 @@ func main() {
 	}
 	timeoutMS := time.Duration(timeoutInt) * time.Millisecond
 
-	s := storage.NewStorage(os.Getenv("DB_CONNECTION_URI")).WithTimeout(timeoutMS)
+	s := mongo.NewStorage(os.Getenv("DB_CONNECTION_URI")).WithTimeout(timeoutMS)
 
 	ctx := context.Background()
 	s.Connect(ctx)

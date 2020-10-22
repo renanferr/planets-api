@@ -103,11 +103,25 @@ paths:
                     message:
                       type: string
               example:
-                message: "\"name\" property must be a string\""
+                message: validation error
+                fields:
+                  name: Missing required field
         "500":
           description: "Internal server error"
 components:
   schemas:
+    ValidationErrorSchema:
+      type: object
+      required:
+        - message
+        - fields
+      properties:
+          message:
+            type: string
+          fields:
+            type: array
+            items:
+              type: object
     ListingPlanetSchema:
       type: object
       required:

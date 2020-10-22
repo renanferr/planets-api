@@ -2,6 +2,8 @@ package client
 
 import (
 	"context"
+	"errors"
+	"net/url"
 )
 
 // A Planet is a large mass, planet or planetoid in the Star Wars Universe, at the time of 0 ABY.
@@ -22,12 +24,10 @@ type Planet struct {
 	URL            string   `json:"url"`
 }
 
-const (
-	ErrPlanetNotFound = iota
-)
+var ErrPlanetNotFound = errors.New("planet not found")
 
 func (c *Client) GetPlanetByName(ctx context.Context, planetName string) (Planet, error) {
-	req, err := c.newRequest(ctx, "/planets", query{"search": planetName})
+	req, err := c.newRequest(ctx, "/planets", url.Values{"search": {planetName}})
 	if err != nil {
 		return Planet{}, err
 	}
@@ -38,10 +38,11 @@ func (c *Client) GetPlanetByName(ctx context.Context, planetName string) (Planet
 		return Planet{}, err
 	}
 
-	if len(result.Planets) > 0 {
-		return result.Planets[0], nil
+	if len(result.Planets) < 1 {
+		return Planet{}, ErrPlanetNotFound
 	}
-	return Planet{}, nil
+
+	return result.Planets[0], nil
 }
 
 func (c *Client) GetPlanetAppearances(ctx context.Context, planetName string) (int, error) {

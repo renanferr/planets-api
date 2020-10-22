@@ -7,8 +7,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/renanferr/swapi-golang-rest-api/pkg/adding"
-	"github.com/renanferr/swapi-golang-rest-api/pkg/listing"
+	adding_mocks "github.com/renanferr/swapi-golang-rest-api/pkg/mocks/adding"
+	listing_mocks "github.com/renanferr/swapi-golang-rest-api/pkg/mocks/listing"
 )
 
 func TestHandler(t *testing.T) {
@@ -18,8 +18,8 @@ func TestHandler(t *testing.T) {
 	}
 
 	rr := httptest.NewRecorder()
-	a := adding.NewAddingMock("", nil)
-	l := listing.NewListingMock([]listing.Planet{}, nil)
+	a := adding_mocks.NewServiceMock(nil, nil)
+	l := listing_mocks.NewServiceMock(nil, nil)
 	handler := Handler(a, l)
 
 	handler.ServeHTTP(rr, req)
