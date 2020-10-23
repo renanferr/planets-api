@@ -5,6 +5,7 @@ import (
 
 	"github.com/renanferr/swapi-golang-rest-api/pkg/mocks"
 	"github.com/renanferr/swapi-golang-rest-api/pkg/storage/mongo"
+	mongodb "go.mongodb.org/mongo-driver/mongo"
 )
 
 type CollectionMock mocks.Mock
@@ -18,9 +19,9 @@ func (m *CollectionMock) FindOne(ctx context.Context, filter interface{}) mongo.
 }
 
 func (m *CollectionMock) Find(ctx context.Context, filter interface{}) (mongo.Cursor, error) {
-	return m.Value.(mongo.Cursor), m.Err
+	return m.Value.(*CursorMock), m.Err
 }
 
-func (m *CollectionMock) InsertOne(ctx context.Context, document interface{}) (interface{}, error) {
-	return m.Value, m.Err
+func (m *CollectionMock) InsertOne(ctx context.Context, document interface{}) (*mongodb.InsertOneResult, error) {
+	return m.Value.(*mongodb.InsertOneResult), m.Err
 }

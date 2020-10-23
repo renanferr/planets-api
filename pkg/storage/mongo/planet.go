@@ -8,13 +8,13 @@ import (
 
 	"github.com/renanferr/swapi-golang-rest-api/pkg/adding"
 	"github.com/renanferr/swapi-golang-rest-api/pkg/listing"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"gopkg.in/mgo.v2/bson"
 )
 
 // Planet defines the storage form of a planet
 type Planet struct {
-	ID          primitive.ObjectID `json:"id" bson:"_id,omitempty"`
+	ID          primitive.ObjectID `json:"id" bson:"_id"`
 	Name        string             `json:"name" bson:"name"`
 	Climate     string             `json:"climate" bson:"climate"`
 	Terrain     string             `json:"terrain" bson:"terrain"`
@@ -42,9 +42,15 @@ func (s *Storage) AddPlanet(ctx context.Context, p adding.Planet) (string, error
 		return "", fmt.Errorf("error marshalling planet: %v", err)
 	}
 
+	ctx, cancel := context.WithTimeout(ctx, s.TimeoutMS)
+	defer cancel()
+
 	if _, err := s.Client.Database(DatabaseName).Collection(PlanetsCollection).InsertOne(ctx, b); err != nil {
 		return "", err
 	}
+
+	log.Printf("Inserted Planet with ID %s\n", planet.ID.Hex())
+
 	return planet.ID.Hex(), err
 }
 
@@ -55,6 +61,7 @@ func (s *Storage) GetPlanet(ctx context.Context, id string) (listing.Planet, err
 
 	oid, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
+		log.Printf("error casting \"%s\" to ObjectId: %s", id, err.Error())
 		return planet, listing.ErrPlanetNotFound
 
 	}
@@ -68,6 +75,7 @@ func (s *Storage) GetPlanet(ctx context.Context, id string) (listing.Planet, err
 	err = collection.FindOne(ctx, filter).Decode(&p)
 
 	if err != nil {
+		log.Printf("error finding planet: %s", err.Error())
 		return planet, listing.ErrPlanetNotFound
 
 	}
@@ -82,8 +90,11 @@ func (s *Storage) GetPlanet(ctx context.Context, id string) (listing.Planet, err
 }
 
 // GetPlanets returns all planets
-func (s *Storage) GetPlanets(ctx context.Context) []listing.Planet {
+func (s *Storage) GetPlanets(ctx context.Context, limit int, offset int) []listing.Planet {
 	list := []listing.Planet{}
+
+	ctx, cancel := context.WithTimeout(ctx, s.TimeoutMS)
+	defer cancel()
 
 	cur, err := s.Client.Database(DatabaseName).Collection(PlanetsCollection).Find(ctx, bson.M{})
 
@@ -100,7 +111,6 @@ func (s *Storage) GetPlanets(ctx context.Context) []listing.Planet {
 	for cur.Next(ctx) {
 		var p Planet
 		err := cur.Decode(&p)
-		log.Printf("decoded %v", p)
 
 		if err != nil {
 			log.Printf("error decoding planet: %s", err.Error())

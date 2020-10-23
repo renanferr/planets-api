@@ -10,13 +10,14 @@ import (
 	"github.com/renanferr/swapi-golang-rest-api/pkg/listing"
 	mocks "github.com/renanferr/swapi-golang-rest-api/pkg/mocks/storage/mongo"
 	"github.com/renanferr/swapi-golang-rest-api/pkg/storage/mongo"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"gopkg.in/mgo.v2/bson"
+	mongodb "go.mongodb.org/mongo-driver/mongo"
 )
 
 func TestAddPlanet(t *testing.T) {
 
-	storage := mockStorage(nil)
+	storage := mockStorage(&mongodb.InsertOneResult{})
 
 	var p adding.Planet
 	p.Name = "tatooine"
@@ -31,7 +32,7 @@ func TestAddPlanet(t *testing.T) {
 
 	oid, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
-		t.Errorf("%s is not a valid ObjectID", oid)
+		t.Errorf("error casting \"%s\" to ObjectID: %s", id, err.Error())
 	}
 
 	if id != oid.Hex() {
@@ -214,7 +215,7 @@ func TestGetPlanets(t *testing.T) {
 			}()
 		}
 
-		out := storage.GetPlanets(context.Background())
+		out := storage.GetPlanets(context.Background(), 20, 0)
 		var expectedOutput []listing.Planet
 		for _, p := range tc.Mock.Values.([]*mongo.Planet) {
 			var planet listing.Planet

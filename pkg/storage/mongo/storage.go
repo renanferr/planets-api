@@ -49,24 +49,54 @@ type DatabaseWrapping struct {
 }
 
 func (d *DatabaseWrapping) Collection(name string) Collection {
-	return d.Collection(name)
+	return &CollectionWrapping{d.db.Collection(name)}
 }
 
 type Collection interface {
 	Find(context.Context, interface{}) (Cursor, error)
 	FindOne(context.Context, interface{}) SingleResult
-	InsertOne(context.Context, interface{}) (interface{}, error)
+	InsertOne(context.Context, interface{}) (*mongo.InsertOneResult, error)
 }
 
 type CollectionWrapping struct {
 	coll *mongo.Collection
 }
 
+func (c *CollectionWrapping) Find(ctx context.Context, filter interface{}) (Cursor, error) {
+	return c.coll.Find(ctx, filter)
+}
+func (c *CollectionWrapping) FindOne(ctx context.Context, filter interface{}) SingleResult {
+	return c.coll.FindOne(ctx, filter)
+}
+func (c *CollectionWrapping) InsertOne(ctx context.Context, doc interface{}) (*mongo.InsertOneResult, error) {
+	return c.coll.InsertOne(ctx, doc)
+}
+
 type Cursor interface {
 	Next(context.Context) bool
 	Decode(interface{}) error
-	Close(context.Context)
+	Close(context.Context) error
 	Err() error
+}
+
+type CursorWrapping struct {
+	cursor *mongo.Cursor
+}
+
+func (c *CursorWrapping) Next(ctx context.Context) bool {
+	return c.cursor.Next(ctx)
+}
+
+func (c *CursorWrapping) Decode(v interface{}) error {
+	return c.cursor.Decode(v)
+}
+
+func (c *CursorWrapping) Close(ctx context.Context) error {
+	return c.cursor.Close(ctx)
+}
+
+func (c *CursorWrapping) Err() error {
+	return c.cursor.Err()
 }
 
 type SingleResult interface {

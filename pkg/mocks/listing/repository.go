@@ -23,6 +23,6 @@ func (m *RepositoryMock) GetPlanet(ctx context.Context, planetID string) (listin
 	return v, m.Err
 }
 
-func (m *RepositoryMock) GetPlanets(ctx context.Context) []listing.Planet {
+func (m *RepositoryMock) GetPlanets(ctx context.Context, limit int, offset int) []listing.Planet {
 	return m.Value.([]listing.Planet)
 }

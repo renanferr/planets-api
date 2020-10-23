@@ -2,7 +2,7 @@ package mongo
 
 import (
 	"github.com/renanferr/swapi-golang-rest-api/pkg/mocks"
-	"gopkg.in/mgo.v2/bson"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 type SingleResultMock mocks.Mock

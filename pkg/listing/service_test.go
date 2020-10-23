@@ -67,33 +67,74 @@ func TestGetPlanetNotFound(t *testing.T) {
 }
 
 func TestGetPlanets(t *testing.T) {
-
-	tt := [][]listing.Planet{
-		{},
+	type TestCase struct {
+		Name    string
+		Planets []listing.Planet
+		Page    int
+		Limit   int
+	}
+	tt := []TestCase{
 		{
-			{
-				primitive.NewObjectID().Hex(),
-				"tatooine",
-				"arid",
-				"desert",
-				5,
-			},
+			"",
+			[]listing.Planet{},
+			1,
+			20,
 		},
 		{
-			{
-				primitive.NewObjectID().Hex(),
-				"tatooine",
-				"arid",
-				"desert",
-				5,
+			"",
+			[]listing.Planet{
+				{
+					primitive.NewObjectID().Hex(),
+					"tatooine",
+					"arid",
+					"desert",
+					5,
+				},
 			},
-			{
-				primitive.NewObjectID().Hex(),
-				"alderaan",
-				"temperate",
-				"grasslands",
-				2,
+			1,
+			20,
+		},
+		{
+			"",
+			[]listing.Planet{
+				{
+					primitive.NewObjectID().Hex(),
+					"tatooine",
+					"arid",
+					"desert",
+					5,
+				},
+				{
+					primitive.NewObjectID().Hex(),
+					"alderaan",
+					"temperate",
+					"grasslands",
+					2,
+				},
 			},
+			1,
+			20,
+		},
+		{
+			"",
+			[]listing.Planet{
+				{
+					primitive.NewObjectID().Hex(),
+					"tatooine",
+					"arid",
+					"desert",
+					5,
+				},
+				{
+					primitive.NewObjectID().Hex(),
+					"alderaan",
+					"temperate",
+					"grasslands",
+					2,
+				},
+			},
+			1,
+			1,
 		},
 	}
 
@@ -101,7 +142,7 @@ func TestGetPlanets(t *testing.T) {
 		r := mocks.NewRepositoryMock(tt[i], nil)
 		s := listing.NewService(r)
 
-		planets := s.GetPlanets(context.Background())
+		planets := s.GetPlanets(context.Background(), 20, 0)
 		if !reflect.DeepEqual(tc, planets) {
 			t.Errorf("planet lists does not match: %v != %v", tc, planets)
 		}

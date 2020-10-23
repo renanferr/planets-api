@@ -30,7 +30,6 @@ func (m *CursorMock) Next(ctx context.Context) bool {
 	if hasNext {
 		var err error
 		m.Current = reflect.ValueOf(m.Values).Index(m.Cursor).Interface()
-		log.Printf("current %v %s", m.Current, reflect.TypeOf(m.Current))
 		if err != nil {
 			panic(err)
 		}
@@ -58,4 +57,6 @@ func (m *CursorMock) Err() error {
 	return m.Error
 }
 
-func (m *CursorMock) Close(ctx context.Context) {}
+func (m *CursorMock) Close(ctx context.Context) error {
+	return nil
+}

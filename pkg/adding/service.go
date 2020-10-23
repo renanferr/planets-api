@@ -2,10 +2,13 @@ package adding
 
 import (
 	"context"
+	"errors"
 	"log"
 
 	"github.com/asaskevich/govalidator"
 )
+
+var ErrPlanetNotFound = errors.New("planet not found")
 
 // ValidationError defines the type for a validation error
 type ValidationError struct {
@@ -64,13 +67,18 @@ func (s *service) AddPlanet(ctx context.Context, p Planet) (string, error) {
 		validationErrChan <- nil
 	}()
 
-	appearancesChan := make(chan int)
+	responseChan := make(chan struct {
+		appearances int
+		err         error
+	})
+
 	go func() {
 		a, e := s.planets.GetPlanetAppearances(ctx, p.Name)
-		if e != nil {
-			log.Printf("error fetching planet info: %s", e.Error())
-		}
-		appearancesChan <- a
+
+		responseChan <- struct {
+			appearances int
+			err         error
+		}{a, e}
 	}()
 
 	validationErr := <-validationErrChan
@@ -78,7 +86,16 @@ func (s *service) AddPlanet(ctx context.Context, p Planet) (string, error) {
 		return "", NewValidationError(validationErr)
 	}
 
-	p.Appearances = <-appearancesChan
+	response := <-responseChan
+
+	if response.err != nil {
+		log.Printf("error fetching planet info: %s", response.err.Error())
+		if !errors.Is(ErrPlanetNotFound, response.err) {
+			return "", response.err
+		}
+	}
+
+	p.Appearances = response.appearances
 
 	id, err := s.repo.AddPlanet(ctx, p)
 	if err != nil {
