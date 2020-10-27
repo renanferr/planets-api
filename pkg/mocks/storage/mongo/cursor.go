@@ -6,7 +6,7 @@ import (
 	"log"
 	"reflect"
 
-	"gopkg.in/mgo.v2/bson"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 type CursorMock struct {
