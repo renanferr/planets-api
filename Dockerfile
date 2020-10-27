@@ -11,8 +11,6 @@ RUN go mod download
 
 COPY . .
 
-RUN go test ./pkg/...
-
 RUN go build -o ./out/app ./cmd/server
 
 EXPOSE 8080
