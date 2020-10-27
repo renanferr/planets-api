@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/renanferr/swapi-golang-rest-api/pkg/storage/mongo"
+	"github.com/renanferr/planets-api/pkg/storage/mongo"
 )
 
 func TestStorage(t *testing.T) {

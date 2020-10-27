@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/renanferr/swapi-golang-rest-api/pkg/adding"
-	mocks "github.com/renanferr/swapi-golang-rest-api/pkg/mocks/adding"
+	"github.com/renanferr/planets-api/pkg/adding"
+	mocks "github.com/renanferr/planets-api/pkg/mocks/adding"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 

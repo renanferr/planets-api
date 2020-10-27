@@ -4,7 +4,7 @@ info:
   version: 1.0.0
   title: Example
 servers:
-  - url: https://swapi-golang-rest-api.herokuapp.com/api
+  - url: https://planets-api.herokuapp.com/api
     description: Server address
 tags:
   - name: "SWAPI Golang REST API Challenge"

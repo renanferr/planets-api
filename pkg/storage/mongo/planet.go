@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/renanferr/swapi-golang-rest-api/pkg/adding"
-	"github.com/renanferr/swapi-golang-rest-api/pkg/listing"
+	"github.com/renanferr/planets-api/pkg/adding"
+	"github.com/renanferr/planets-api/pkg/listing"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/options"

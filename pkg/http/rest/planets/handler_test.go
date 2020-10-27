@@ -14,10 +14,10 @@ import (
 	"testing"
 
 	"github.com/asaskevich/govalidator"
-	"github.com/renanferr/swapi-golang-rest-api/pkg/adding"
-	"github.com/renanferr/swapi-golang-rest-api/pkg/listing"
-	adding_mocks "github.com/renanferr/swapi-golang-rest-api/pkg/mocks/adding"
-	listing_mocks "github.com/renanferr/swapi-golang-rest-api/pkg/mocks/listing"
+	"github.com/renanferr/planets-api/pkg/adding"
+	"github.com/renanferr/planets-api/pkg/listing"
+	adding_mocks "github.com/renanferr/planets-api/pkg/mocks/adding"
+	listing_mocks "github.com/renanferr/planets-api/pkg/mocks/listing"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 

@@ -11,7 +11,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
-const DatabaseName = "swapi-golang-rest-api"
+const DatabaseName = "planets-api"
 
 type Client interface {
 	Ping(context.Context, *readpref.ReadPref) error

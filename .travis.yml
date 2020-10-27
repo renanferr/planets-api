@@ -1,11 +1,4 @@
-language: go
-go:
-- 1.13.x
-deploy:
-  app: planets-api
-  provider: heroku
-  skip_cleanup: true
-  api_key:
-    secure: fEXAqDTf7WzqnQ6vWdyZz+M8n7+xOLu2zIsAmbWKC7an/HT3K/jB0U6RKd2k6BdF8Xj9NjK/6QgLcof8zZHqzDmXmXLZzu0ArY2i26ymCA8vONjk83XGs/39anGKgxquNP3Lm4VDByD7mz08bGE40Q0IuW38GyyalAdQuXfWcVCZP7j/pHpz6L1kbOysM0so7fssSqw+XfKrBQPw1Ds8jkGOA6/p1s2mwnZhBDYiA+HtZno3/ntOOhGEVVu+h1Vu2Mbr0DSNwr/J7mDa5VVxZWkGMRwQyRGOejgp4stw/QTyLoJfxETxPYcIyNti+jcwgTTFTtakwdhDZqHm8jIs9kqKap0vioIneOw26Xf96AAuulPhByQaSxoa18pAFYCb0aTtzNxsVdAXRLdqrpCKBeKzz4kGeOh+zxxJqB/D3Lkf84p7LUPEuEw67GEupUXk+QDR4aXfzgjGqy6ZGG3tF6T84+wJwIvOGj4ihrcPczDlMsTNAnc5gfZNfyiVmmgLYcQAGkK6aFn3wtYxSMreLxMsjKLRpUplGpuIH5Tuy7HvYealmRGsqq/3LlYKj/zDEoSJWwyVEjhGNp2Ud/UUjCLlWSGA4LG5kS/kIDg6gn2jIAzlPgt5eet1/qOGqk0TNZcRhO2AgzHTRXBEB8ereKRPx7MJPFDkItQjGB4jQGk=
-after_success: go build -o ./out/app ./cmd/server
-after_deploy: ./out/app
+language:       go
+go:             1.13.x
+before_install: go get github.com/mattn/goveralls
+script:         $GOPATH/bin/goveralls -service=travis-ci

@@ -12,11 +12,11 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/renanferr/swapi-golang-rest-api/pkg/adding"
-	"github.com/renanferr/swapi-golang-rest-api/pkg/http/client"
-	"github.com/renanferr/swapi-golang-rest-api/pkg/http/rest"
-	"github.com/renanferr/swapi-golang-rest-api/pkg/listing"
-	"github.com/renanferr/swapi-golang-rest-api/pkg/storage/mongo"
+	"github.com/renanferr/planets-api/pkg/adding"
+	"github.com/renanferr/planets-api/pkg/http/client"
+	"github.com/renanferr/planets-api/pkg/http/rest"
+	"github.com/renanferr/planets-api/pkg/listing"
+	"github.com/renanferr/planets-api/pkg/storage/mongo"
 )
 
 func main() {

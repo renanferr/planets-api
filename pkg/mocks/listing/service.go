@@ -5,7 +5,7 @@ import (
 	"errors"
 	"log"
 
-	"github.com/renanferr/swapi-golang-rest-api/pkg/listing"
+	"github.com/renanferr/planets-api/pkg/listing"
 )
 
 type ServiceMock struct {

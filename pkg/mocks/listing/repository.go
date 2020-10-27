@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/renanferr/swapi-golang-rest-api/pkg/listing"
+	"github.com/renanferr/planets-api/pkg/listing"
 )
 
 type RepositoryMock struct {

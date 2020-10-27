@@ -1,5 +1,9 @@
 # Planets API
 
+[![Build Status](https://travis-ci.org/renanferr/planets-api.svg?branch=master)](https://travis-ci.org/renanferr/planets-api)
+
+[![Coverage Status](https://coveralls.io/repos/github/renanferr/planets-api/badge.svg?branch=master)](https://coveralls.io/github/renanferr/planets-api?branch=master)
+
 API para adicionar e listar planetas da franquia Star Wars.
 
 Ao adicionar um novo planeta, a aplicação buscará na [SWAPI](https://swapi.dev/) quantas vezes o mesmo apareceu nos filmes.
@@ -75,12 +79,12 @@ $ go test ./...
 
 | Package                                                          | Coverage  |
 |------------------------------------------------------------------|-----------|
-| github.com/renanferr/swapi-golang-rest-api/pkg/adding	           | 100.0%    |
-| github.com/renanferr/swapi-golang-rest-api/pkg/http/client       | 86.1%     |
-| github.com/renanferr/swapi-golang-rest-api/pkg/http/rest         | 100.0%    |
-| github.com/renanferr/swapi-golang-rest-api/pkg/http/rest/planets | 80.3%     |
-| github.com/renanferr/swapi-golang-rest-api/pkg/listing	       | 100.0%    |
-| github.com/renanferr/swapi-golang-rest-api/pkg/storage/mongo	   | 67.4%     |
+| github.com/renanferr/planets-api/pkg/adding	           | 100.0%    |
+| github.com/renanferr/planets-api/pkg/http/client       | 86.1%     |
+| github.com/renanferr/planets-api/pkg/http/rest         | 100.0%    |
+| github.com/renanferr/planets-api/pkg/http/rest/planets | 80.3%     |
+| github.com/renanferr/planets-api/pkg/listing	       | 100.0%    |
+| github.com/renanferr/planets-api/pkg/storage/mongo	   | 67.4%     |
 
 
 ## Licença

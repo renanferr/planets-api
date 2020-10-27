@@ -10,8 +10,8 @@ import (
 	"strconv"
 
 	"github.com/go-chi/chi"
-	"github.com/renanferr/swapi-golang-rest-api/pkg/adding"
-	"github.com/renanferr/swapi-golang-rest-api/pkg/listing"
+	"github.com/renanferr/planets-api/pkg/adding"
+	"github.com/renanferr/planets-api/pkg/listing"
 )
 
 // Router returns the /planets router
