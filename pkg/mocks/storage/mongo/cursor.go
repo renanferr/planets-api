@@ -14,6 +14,7 @@ type CursorMock struct {
 	Current interface{}
 	Values  interface{}
 	Error   error
+	len     int64
 }
 
 func NewCursorMock(values interface{}, err error) *CursorMock {
@@ -22,7 +23,12 @@ func NewCursorMock(values interface{}, err error) *CursorMock {
 		Current: nil,
 		Values:  values,
 		Error:   err,
+		len:     int64(reflect.ValueOf(values).Len()),
 	}
+}
+
+func (m *CursorMock) Len() int64 {
+	return m.len
 }
 
 func (m *CursorMock) Next(ctx context.Context) bool {

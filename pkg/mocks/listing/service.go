@@ -6,13 +6,16 @@ import (
 	"log"
 
 	"github.com/renanferr/swapi-golang-rest-api/pkg/listing"
-	"github.com/renanferr/swapi-golang-rest-api/pkg/mocks"
 )
 
-type ServiceMock mocks.Mock
+type ServiceMock struct {
+	Value interface{}
+	Err   error
+	Total int64
+}
 
-func NewServiceMock(v interface{}, err error) *ServiceMock {
-	return &ServiceMock{v, err}
+func NewServiceMock(v interface{}, err error, total int64) *ServiceMock {
+	return &ServiceMock{v, err, total}
 }
 
 func (m *ServiceMock) GetPlanet(ctx context.Context, id string) (listing.Planet, error) {
@@ -24,11 +27,18 @@ func (m *ServiceMock) GetPlanet(ctx context.Context, id string) (listing.Planet,
 	return v, m.Err
 }
 
-func (m *ServiceMock) GetPlanets(ctx context.Context) []listing.Planet {
+func (m *ServiceMock) GetPlanets(ctx context.Context, offset int64, limit int64) ([]listing.Planet, int64) {
 	v, ok := m.Value.([]listing.Planet)
 	if !ok {
 		log.Panicf("could not assert %v of type `listing.Planet`", m.Value)
 	}
 
-	return v
+	log.Printf("%d %d", offset, limit)
+	if limit > m.Total {
+		limit = m.Total
+	}
+
+	log.Printf("v[%d:%d]", offset, limit)
+
+	return v[offset : offset+limit], m.Total
 }

@@ -19,7 +19,7 @@ func TestGetPlanet(t *testing.T) {
 	p.Climate = "arid"
 	p.Terrain = "desert"
 
-	r := mocks.NewRepositoryMock(p, nil)
+	r := mocks.NewRepositoryMock(p, nil, 1)
 
 	s := listing.NewService(r)
 
@@ -48,7 +48,7 @@ func TestGetPlanetNotFound(t *testing.T) {
 		primitive.NewObjectID().Hex(),
 	}
 
-	r := mocks.NewRepositoryMock(listing.Planet{}, listing.ErrPlanetNotFound)
+	r := mocks.NewRepositoryMock(listing.Planet{}, listing.ErrPlanetNotFound, 1)
 	s := listing.NewService(r)
 
 	for _, id := range tt {
@@ -139,11 +139,15 @@ func TestGetPlanets(t *testing.T) {
 	}
 
 	for i, tc := range tt {
-		r := mocks.NewRepositoryMock(tt[i], nil)
+		expectedTotal := int64(len(tc.Planets))
+		r := mocks.NewRepositoryMock(tt[i].Planets, nil, expectedTotal)
 		s := listing.NewService(r)
 
-		planets := s.GetPlanets(context.Background(), 20, 0)
-		if !reflect.DeepEqual(tc, planets) {
+		planets, total := s.GetPlanets(context.Background(), 20, 0)
+		if total != expectedTotal {
+			t.Errorf("total does not match expected total. got: %d want: %d", total, expectedTotal)
+		}
+		if !reflect.DeepEqual(tc.Planets, planets) {
 			t.Errorf("planet lists does not match: %v != %v", tc, planets)
 		}
 	}

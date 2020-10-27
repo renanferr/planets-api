@@ -18,11 +18,6 @@ func (m *StorageMock) WithDatabase(database *DatabaseMock) *StorageMock {
 }
 
 func (m *StorageMock) WithCollection(collection *CollectionMock) *StorageMock {
-	m.Client.(*ClientMock).DB.Coll = collection
-	return m
-}
-
-func (m *StorageMock) WithSingleResult(result *SingleResultMock) *StorageMock {
-	m.Client.(*ClientMock).DB.Coll.Value = result
+	m.Client.(*ClientMock).DB.(*DatabaseMock).Coll = collection
 	return m
 }

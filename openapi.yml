@@ -35,7 +35,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ListingPlanetSchema"
+                $ref: "#/components/schemas/ListingPlanet"
               example:       
                 id: 5f877f2a77fe0165cb16202b
                 name: tatooine
@@ -49,15 +49,39 @@ paths:
       operationId: "listPlanets"
       summary: List Planets
       description: Lists existing planets
+      parameters:
+        - name: limit
+          in: query
+          description: "Determines the maximum number of planets to be returned in this page"
+          required: false
+          schema:
+            type: integer
+            default: 20
+            minimum: 0
+        - name: page
+          in: query
+          description: "Determines which page to show"
+          required: false
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
       responses:
         "200":
           description: "OK"
+          headers:
+            X-Total-Count:
+              description: Total count of resources despite the page limit
+              schema:
+                type: string
+              example:
+                X-Total-Count: 234
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/ListingPlanetSchema"
+                  $ref: "#/components/schemas/ListingPlanet"
                 example:
                   - id: "5f877f2a77fe0165cb16202b"
                     name: "tatooine"
@@ -69,6 +93,12 @@ paths:
                     climate: "temperate"
                     terrain: "grasslands"
                     appearances: 2
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestError'
     post:
       summary: Add Planet
       description: Adds a new planet
@@ -78,7 +108,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AddingPlanetSchema'
+              $ref: '#/components/schemas/AddingPlanet'
             example:
               name: "tatooine"
               climate: "arid"
@@ -110,7 +140,14 @@ paths:
           description: "Internal server error"
 components:
   schemas:
-    ValidationErrorSchema:
+    BadRequestError:
+      type: object
+      properties:
+        message:
+          type: string
+      example:
+        message: "offset value must be an integer. got: \"foo\""
+    ValidationError:
       type: object
       required:
         - message
@@ -122,7 +159,7 @@ components:
             type: array
             items:
               type: object
-    ListingPlanetSchema:
+    ListingPlanet:
       type: object
       required:
         - id
@@ -140,7 +177,7 @@ components:
           type: string
         appearances:
           type: number
-    AddingPlanetSchema:
+    AddingPlanet:
       type: object
       required:
         - name

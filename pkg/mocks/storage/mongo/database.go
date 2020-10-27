@@ -3,7 +3,11 @@ package mongo
 import "github.com/renanferr/swapi-golang-rest-api/pkg/storage/mongo"
 
 type DatabaseMock struct {
-	Coll *CollectionMock
+	Coll mongo.Collection
+}
+
+func NewDatabaseMock(coll mongo.Collection) mongo.Database {
+	return &DatabaseMock{Coll: coll}
 }
 
 func (m *DatabaseMock) Collection(name string) mongo.Collection {

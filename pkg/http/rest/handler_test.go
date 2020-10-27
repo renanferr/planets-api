@@ -19,7 +19,7 @@ func TestHandler(t *testing.T) {
 
 	rr := httptest.NewRecorder()
 	a := adding_mocks.NewServiceMock(nil, nil)
-	l := listing_mocks.NewServiceMock(nil, nil)
+	l := listing_mocks.NewServiceMock(nil, nil, 0)
 	handler := Handler(a, l)
 
 	handler.ServeHTTP(rr, req)

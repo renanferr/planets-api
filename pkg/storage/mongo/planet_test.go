@@ -41,9 +41,9 @@ func TestAddPlanet(t *testing.T) {
 }
 
 func mockStorage(value interface{}) *mongo.Storage {
-	coll := &mocks.CollectionMock{value, nil}
-	db := &mocks.DatabaseMock{coll}
-	cli := &mocks.ClientMock{db, nil, nil, nil}
+	coll := mocks.NewCollectionMock(value, nil)
+	db := mocks.NewDatabaseMock(coll)
+	cli := mocks.NewClientMock(db, nil, nil, nil)
 	return mocks.NewStorageMock("mongodb://mock.test", cli)
 }
 
@@ -215,7 +215,7 @@ func TestGetPlanets(t *testing.T) {
 			}()
 		}
 
-		out := storage.GetPlanets(context.Background(), 20, 0)
+		planets, total := storage.GetPlanets(context.Background(), 20, 0)
 		var expectedOutput []listing.Planet
 		for _, p := range tc.Mock.Values.([]*mongo.Planet) {
 			var planet listing.Planet
@@ -227,11 +227,15 @@ func TestGetPlanets(t *testing.T) {
 			expectedOutput = append(expectedOutput, planet)
 		}
 
-		if len(out) != 0 &&
-			len(expectedOutput) != 0 &&
-			!reflect.DeepEqual(out, expectedOutput) {
+		if total != tc.Mock.Len() {
 
-			t.Errorf("<%s> planets do not match. got: %v want: %v", tc.Name, out, expectedOutput)
+		}
+
+		if len(planets) != 0 &&
+			len(expectedOutput) != 0 &&
+			!reflect.DeepEqual(planets, expectedOutput) {
+
+			t.Errorf("<%s> planets do not match. got: %v want: %v", tc.Name, planets, expectedOutput)
 		}
 	}
 }

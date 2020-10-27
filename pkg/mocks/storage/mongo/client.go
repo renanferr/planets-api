@@ -8,14 +8,14 @@ import (
 )
 
 type ClientMock struct {
-	DB           *DatabaseMock
+	DB           mongo.Database
 	ConnectErr   error
 	DisconectErr error
 	PingErr      error
 }
 
-func NewClientMock(db *DatabaseMock) *ClientMock {
-	return &ClientMock{db, nil, nil, nil}
+func NewClientMock(db mongo.Database, connectErr error, disconnectErr error, pingErr error) *ClientMock {
+	return &ClientMock{db, connectErr, disconnectErr, pingErr}
 }
 
 func (m *ClientMock) Database(databaseName string) mongo.Database {

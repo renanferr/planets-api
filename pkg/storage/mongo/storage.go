@@ -53,7 +53,8 @@ func (d *DatabaseWrapping) Collection(name string) Collection {
 }
 
 type Collection interface {
-	Find(context.Context, interface{}) (Cursor, error)
+	Find(context.Context, interface{}, ...*options.FindOptions) (Cursor, error)
+	Count(context.Context, interface{}) (int64, error)
 	FindOne(context.Context, interface{}) SingleResult
 	InsertOne(context.Context, interface{}) (*mongo.InsertOneResult, error)
 }
@@ -62,12 +63,18 @@ type CollectionWrapping struct {
 	coll *mongo.Collection
 }
 
-func (c *CollectionWrapping) Find(ctx context.Context, filter interface{}) (Cursor, error) {
-	return c.coll.Find(ctx, filter)
+func (c *CollectionWrapping) Find(ctx context.Context, filter interface{}, opts ...*options.FindOptions) (Cursor, error) {
+	return c.coll.Find(ctx, filter, opts...)
 }
+
+func (c *CollectionWrapping) Count(ctx context.Context, filter interface{}) (int64, error) {
+	return c.coll.CountDocuments(ctx, filter)
+}
+
 func (c *CollectionWrapping) FindOne(ctx context.Context, filter interface{}) SingleResult {
 	return c.coll.FindOne(ctx, filter)
 }
+
 func (c *CollectionWrapping) InsertOne(ctx context.Context, doc interface{}) (*mongo.InsertOneResult, error) {
 	return c.coll.InsertOne(ctx, doc)
 }

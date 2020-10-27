@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/url"
+	"strconv"
 
 	"github.com/go-chi/chi"
 	"github.com/renanferr/swapi-golang-rest-api/pkg/adding"
@@ -32,6 +34,14 @@ type errorResponse struct {
 	Message string `json:"message"`
 }
 
+func sendErrorResponse(w http.ResponseWriter, status int, message string) {
+	w.WriteHeader(status)
+	w.Header().Set("Content-type", "application/json")
+	if err := json.NewEncoder(w).Encode(&errorResponse{message}); err != nil {
+		log.Panicf("error encoding error response: %s", err)
+	}
+}
+
 // addPlanet returns a handler for POST /planets requests
 func addPlanet(s adding.Service) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -41,11 +51,7 @@ func addPlanet(s adding.Service) func(w http.ResponseWriter, r *http.Request) {
 		err := decoder.Decode(&newPlanet)
 		if err != nil {
 			log.Printf("error decoding planet: %s", err.Error())
-			w.WriteHeader(http.StatusBadRequest)
-			w.Header().Set("Content-type", "application/json")
-			if err = json.NewEncoder(w).Encode(&errorResponse{"decoding error"}); err != nil {
-				log.Panicf("error encoding error response: %s", err)
-			}
+			sendErrorResponse(w, http.StatusBadRequest, "JSON decoding error")
 			return
 		}
 
@@ -71,11 +77,57 @@ func addPlanet(s adding.Service) func(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func getOffset(limit int64, page int64) int64 {
+	if page < 1 {
+		return 0
+	}
+
+	return (page - 1) * limit
+}
+
+func getPaginationInfo(query url.Values) (int64, int64, error) {
+
+	info := map[string]int64{"limit": 20, "page": 1}
+
+	var err error
+
+	for k := range info {
+		v := query.Get(k)
+		if v != "" {
+			val, err := strconv.ParseInt(v, 10, 64)
+			info[k] = val
+			if err != nil {
+				log.Println(err)
+				return 0, 0, fmt.Errorf("%s value must be an integer. got: %s", k, v)
+			}
+		}
+	}
+
+	return info["limit"], info["page"], err
+}
+
 // getPlanets returns a handler for GET /planets requests
 func getPlanets(s listing.Service) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
-		list := s.GetPlanets(r.Context())
+		limit, page, err := getPaginationInfo(r.URL.Query())
+		if err != nil {
+			log.Println(err)
+			sendErrorResponse(w, http.StatusBadRequest, err.Error())
+			return
+		}
+
+		if limit < 1 || page < 1 {
+			err = errors.New("pagination out of range")
+			log.Println(err)
+			sendErrorResponse(w, http.StatusBadRequest, err.Error())
+			return
+		}
+
+		offset := getOffset(limit, page)
+
+		list, total := s.GetPlanets(r.Context(), offset, limit)
+		w.Header().Set("X-Total-Count", strconv.FormatInt(total, 10))
 		json.NewEncoder(w).Encode(list)
 	}
 }

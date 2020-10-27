@@ -4,12 +4,14 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/renanferr/swapi-golang-rest-api/pkg/adding"
 	"github.com/renanferr/swapi-golang-rest-api/pkg/listing"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 // Planet defines the storage form of a planet
@@ -30,9 +32,9 @@ func (s *Storage) AddPlanet(ctx context.Context, p adding.Planet) (string, error
 	planet := Planet{
 		ID:          primitive.NewObjectID(),
 		CreatedAt:   time.Now(),
-		Name:        p.Name,
-		Climate:     p.Climate,
-		Terrain:     p.Terrain,
+		Name:        strings.ToLower(p.Name),
+		Climate:     strings.ToLower(p.Climate),
+		Terrain:     strings.ToLower(p.Terrain),
 		Appearances: p.Appearances,
 	}
 
@@ -90,13 +92,26 @@ func (s *Storage) GetPlanet(ctx context.Context, id string) (listing.Planet, err
 }
 
 // GetPlanets returns all planets
-func (s *Storage) GetPlanets(ctx context.Context, limit int, offset int) []listing.Planet {
+func (s *Storage) GetPlanets(ctx context.Context, offset int64, limit int64) ([]listing.Planet, int64) {
 	list := []listing.Planet{}
 
 	ctx, cancel := context.WithTimeout(ctx, s.TimeoutMS)
 	defer cancel()
 
-	cur, err := s.Client.Database(DatabaseName).Collection(PlanetsCollection).Find(ctx, bson.M{})
+	collection := s.Client.Database(DatabaseName).Collection(PlanetsCollection)
+	filter := bson.M{}
+
+	count, err := collection.Count(ctx, filter)
+
+	if err != nil {
+		panic(err)
+	}
+
+	opts := options.Find().
+		SetLimit(limit).
+		SetSkip(offset)
+
+	cur, err := collection.Find(ctx, filter, opts)
 
 	if err != nil {
 		panic(err)
@@ -114,7 +129,7 @@ func (s *Storage) GetPlanets(ctx context.Context, limit int, offset int) []listi
 
 		if err != nil {
 			log.Printf("error decoding planet: %s", err.Error())
-			return list
+			return list, 0
 		}
 		var planet listing.Planet
 
@@ -127,5 +142,5 @@ func (s *Storage) GetPlanets(ctx context.Context, limit int, offset int) []listi
 		list = append(list, planet)
 	}
 
-	return list
+	return list, count
 }

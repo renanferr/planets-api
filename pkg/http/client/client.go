@@ -44,7 +44,8 @@ func NewClient(baseURL string) (*Client, error) {
 }
 
 func (c *Client) newRequest(ctx context.Context, path string, query url.Values) (*http.Request, error) {
-	url := c.baseURL
+
+	url := *c.baseURL
 	url.Path = pathlib.Join(url.Path, path)
 
 	q := url.Query()

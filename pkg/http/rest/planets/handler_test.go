@@ -10,6 +10,7 @@ import (
 	"log"
 	"net/http"
 	"net/http/httptest"
+	"strconv"
 	"testing"
 
 	"github.com/asaskevich/govalidator"
@@ -77,6 +78,7 @@ func runTestCase(t *testing.T, tc *TestCase) {
 			t.Errorf("<%s> error reading expected response: %w", tc.Name, err)
 		}
 		expectedBody = string(b)
+		fmt.Println(expectedBody)
 	}
 
 	if rr.Body.String() != expectedBody {
@@ -97,7 +99,7 @@ func TestAddPlanet(t *testing.T) {
 		{
 			"add planet",
 			adding_mocks.NewServiceMock(oid.Hex(), nil),
-			listing_mocks.NewServiceMock([]listing.Planet{}, nil),
+			listing_mocks.NewServiceMock([]listing.Planet{}, nil, 0),
 			TestRequest{
 				"POST",
 				"/",
@@ -115,9 +117,9 @@ func TestAddPlanet(t *testing.T) {
 			},
 		},
 		{
-			"decoding error",
+			"JSON decoding error",
 			adding_mocks.NewServiceMock("", nil),
-			listing_mocks.NewServiceMock(listing.Planet{}, nil),
+			listing_mocks.NewServiceMock(listing.Planet{}, nil, 0),
 			TestRequest{
 				"POST",
 				"/",
@@ -126,7 +128,7 @@ func TestAddPlanet(t *testing.T) {
 			ExpectedResponse{
 				http.StatusBadRequest,
 				http.Header{"Content-Type": []string{"application/json"}},
-				marshalBody(t, &errorResponse{"decoding error"}),
+				marshalBody(t, &errorResponse{"JSON decoding error"}),
 			},
 		},
 		{
@@ -138,7 +140,7 @@ func TestAddPlanet(t *testing.T) {
 				Validator:                "required",
 				Path:                     []string{},
 			})),
-			listing_mocks.NewServiceMock([]listing.Planet{}, nil),
+			listing_mocks.NewServiceMock([]listing.Planet{}, nil, 0),
 			TestRequest{
 				"POST",
 				"/",
@@ -162,7 +164,7 @@ func TestAddPlanet(t *testing.T) {
 }
 
 func TestGetPlanets(t *testing.T) {
-	oid := primitive.NewObjectID()
+	oid, oid2 := primitive.NewObjectID(), primitive.NewObjectID()
 	planets := []listing.Planet{
 		{
 			ID:          oid.Hex(),
@@ -171,13 +173,20 @@ func TestGetPlanets(t *testing.T) {
 			Terrain:     "desert",
 			Appearances: 5,
 		},
+		{
+			ID:          oid2.Hex(),
+			Name:        "alderaan",
+			Climate:     "temperate",
+			Terrain:     "grasslands",
+			Appearances: 2,
+		},
 	}
 
 	tt := []TestCase{
 		{
 			"get planets",
 			adding_mocks.NewServiceMock(oid.Hex(), nil),
-			listing_mocks.NewServiceMock(planets, nil),
+			listing_mocks.NewServiceMock(planets, nil, int64(len(planets))),
 			TestRequest{
 				"GET",
 				"/",
@@ -185,8 +194,47 @@ func TestGetPlanets(t *testing.T) {
 			},
 			ExpectedResponse{
 				http.StatusOK,
-				http.Header{"Content-Type": []string{"application/json"}},
+				http.Header{
+					"Content-Type":  []string{"application/json"},
+					"X-Total-Count": []string{strconv.Itoa(len(planets))},
+				},
 				marshalBody(t, &planets),
+			},
+		},
+		{
+			"get 1st planet in 1st page",
+			adding_mocks.NewServiceMock(oid.Hex(), nil),
+			listing_mocks.NewServiceMock(planets, nil, int64(len(planets))),
+			TestRequest{
+				"GET",
+				"/?page=1&limit=1",
+				nil,
+			},
+			ExpectedResponse{
+				http.StatusOK,
+				http.Header{
+					"Content-Type":  []string{"application/json"},
+					"X-Total-Count": []string{strconv.Itoa(len(planets))},
+				},
+				marshalBody(t, planets[0:1]),
+			},
+		},
+		{
+			"get 2nd planet in 2nd page",
+			adding_mocks.NewServiceMock(oid.Hex(), nil),
+			listing_mocks.NewServiceMock(planets, nil, int64(len(planets))),
+			TestRequest{
+				"GET",
+				"/?page=2&limit=1",
+				nil,
+			},
+			ExpectedResponse{
+				http.StatusOK,
+				http.Header{
+					"Content-Type":  []string{"application/json"},
+					"X-Total-Count": []string{strconv.Itoa(len(planets))},
+				},
+				marshalBody(t, planets[1:2]),
 			},
 		},
 	}
@@ -209,7 +257,7 @@ func TestGetPlanet(t *testing.T) {
 		{
 			"get planet",
 			adding_mocks.NewServiceMock(oid.Hex(), nil),
-			listing_mocks.NewServiceMock(p, nil),
+			listing_mocks.NewServiceMock(p, nil, 0),
 			TestRequest{
 				"GET",
 				fmt.Sprintf("/%s", oid.Hex()),
@@ -224,7 +272,7 @@ func TestGetPlanet(t *testing.T) {
 		{
 			"planet not found",
 			adding_mocks.NewServiceMock("", nil),
-			listing_mocks.NewServiceMock(listing.Planet{}, listing.ErrPlanetNotFound),
+			listing_mocks.NewServiceMock(listing.Planet{}, listing.ErrPlanetNotFound, 0),
 			TestRequest{
 				"GET",
 				fmt.Sprintf("/%s", primitive.NewObjectID().Hex()),
