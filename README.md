@@ -54,7 +54,7 @@ Além disso, possui uma especificação [OpenAPI 3](https://swagger.io/specifica
 
 | Nome                      | Descrição                                 |
 |---------------------------|-------------------------------------------|
-| APP_PORT                  | Porta do servidor HTTP                    |
+| PORT                      | Porta do servidor HTTP                    |
 | APP_LOG_LEVEL             | Nível de log estruturado da aplicação     |
 | DB_CONNECTION_URI         | URI de conexão com MongoDB                |
 | DB_TIMEOUT_MS             | Tempo máximo de transação no MongoDB em *milissegundos*|

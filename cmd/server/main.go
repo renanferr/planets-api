@@ -43,7 +43,7 @@ func main() {
 
 	router := rest.Handler(adder, lister)
 
-	port := os.Getenv("APP_PORT")
+	port := os.Getenv("PORT")
 	if !strings.HasPrefix(port, ":") {
 		port = fmt.Sprintf(":%s", port)
 	}
