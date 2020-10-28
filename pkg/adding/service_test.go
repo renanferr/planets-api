@@ -11,31 +11,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-// func TestAddPlanet(t *testing.T) {
-// 	oid := primitive.NewObjectID()
-// 	r := mocks.NewRepositoryMock(oid.Hex(), nil)
-// 	c := mocks.NewPlanetsClientMock(1, nil)
-// 	s := adding.NewService(r, c)
-
-// 	var p adding.Planet
-// 	p.Name = "tatooine"
-// 	p.Climate = "arid"
-// 	p.Terrain = "desert"
-// 	id, err := s.AddPlanet(context.Background(), p)
-
-// 	if err != nil {
-// 		t.Errorf("unexpected error: %s", err.Error())
-// 	}
-
-// 	if id == "" {
-// 		t.Error("inserted id is empty")
-// 	}
-
-// 	if id != oid.Hex() {
-// 		t.Errorf("%s is not equal to %s", oid.Hex(), idna.New())
-// 	}
-// }
-
 func TestAddPlanet(t *testing.T) {
 
 	type TestCase struct {

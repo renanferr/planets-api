@@ -5,13 +5,12 @@ import (
 	"log"
 	"net/url"
 	"time"
+	"unicode/utf8"
 
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
-
-const DatabaseName = "planets-api"
 
 type Client interface {
 	Ping(context.Context, *readpref.ReadPref) error
@@ -135,7 +134,14 @@ func NewStorage(uri string) *Storage {
 	}
 	client := &ClientWrapping{cli}
 	s.Client = client
+	s.TimeoutMS = time.Duration(10000) * time.Millisecond
+
 	return s
+}
+
+func (s *Storage) DatabaseName() string {
+	_, i := utf8.DecodeRuneInString(s.URI.Path)
+	return s.URI.Path[i:]
 }
 
 func (s *Storage) WithTimeout(timeout time.Duration) *Storage {
