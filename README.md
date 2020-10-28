@@ -1,8 +1,6 @@
 # Planets API
 
-[![Build Status](https://travis-ci.org/renanferr/planets-api.svg?branch=master)](https://travis-ci.org/renanferr/planets-api)
-
-[![Coverage Status](https://coveralls.io/repos/github/renanferr/planets-api/badge.svg?branch=master)](https://coveralls.io/github/renanferr/planets-api?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/renanferr/planets-api/badge.svg?branch=master)](https://coveralls.io/github/renanferr/planets-api?branch=master)[![Build Status](https://travis-ci.org/renanferr/planets-api.svg?branch=master)](https://travis-ci.org/renanferr/planets-api)
 
 API para adicionar e listar planetas da franquia Star Wars.
 
@@ -54,7 +52,7 @@ Além disso, possui uma especificação [OpenAPI 3](https://swagger.io/specifica
 
 | Nome                      | Descrição                                 |
 |---------------------------|-------------------------------------------|
-| PORT                      | Porta do servidor HTTP                    |
+| PORT                        | Porta do servidor HTTP                    |
 | APP_LOG_LEVEL             | Nível de log estruturado da aplicação     |
 | DB_CONNECTION_URI         | URI de conexão com MongoDB                |
 | DB_TIMEOUT_MS             | Tempo máximo de transação no MongoDB em *milissegundos*|
