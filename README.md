@@ -1,6 +1,6 @@
 # Planets API
 
-[![Coverage Status](https://coveralls.io/repos/github/renanferr/planets-api/badge.svg?branch=master)](https://coveralls.io/github/renanferr/planets-api?branch=master)[![Build Status](https://travis-ci.org/renanferr/planets-api.svg?branch=master)](https://travis-ci.org/renanferr/planets-api) 
+[![Coverage Status](https://coveralls.io/repos/github/renanferr/planets-api/badge.svg?branch=master)](https://coveralls.io/github/renanferr/planets-api?branch=master)[![Build Status](https://travis-ci.org/renanferr/planets-api.svg?branch=master)](https://travis-ci.org/renanferr/planets-api)
 
 API para adicionar e listar planetas da franquia Star Wars.
 
@@ -64,6 +64,37 @@ Para executar via [docker-compose](https://docs.docker.com/compose/)
 
 ```bash
 $ docker-compose up --build -d
+```
+
+## Live Demo
+
+Uma demonstração da aplicação foi implantada no plano grátis do heroku em:
+https://swapi-golang-rest-api.herokuapp.com
+
+### Exemplos de Requisição
+
+#### Adding Planet
+```bash
+$ curl --request POST \
+  --url https://swapi-golang-rest-api.herokuapp.com/api/planets \
+  --header 'content-type: application/json' \
+  --data '{
+  "name": "tatooine",
+  "climate": "arid",
+  "terrain": "desert"
+}'
+```
+
+#### Getting Planet
+```bash
+$ curl --request GET \
+  --url https://swapi-golang-rest-api.herokuapp.com/api/planets/5f99b620ce4200066e7efed4
+```
+
+#### Listing Planet
+```bash
+$ curl --request GET \
+  --url 'https://swapi-golang-rest-api.herokuapp.com/api/planets?page=1&limit=5'
 ```
 
 ## Testes
