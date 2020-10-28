@@ -1,6 +1,6 @@
 # Planets API
 
-[![Coverage Status](https://coveralls.io/repos/github/renanferr/planets-api/badge.svg?branch=master)](https://coveralls.io/github/renanferr/planets-api?branch=master)[![Build Status](https://travis-ci.org/renanferr/planets-api.svg?branch=master)](https://travis-ci.org/renanferr/planets-api)
+[![Coverage Status](https://coveralls.io/repos/github/renanferr/planets-api/badge.svg?branch=master)](https://coveralls.io/github/renanferr/planets-api?branch=master)&nbsp;&nbsp;&nbsp;&nbsp;[![Build Status](https://travis-ci.org/renanferr/planets-api.svg?branch=master)](https://travis-ci.org/renanferr/planets-api)
 
 API para adicionar e listar planetas da franquia Star Wars.
 
