@@ -10,7 +10,7 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/renanferr/swapi-golang-rest-api/pkg/adding"
+	"github.com/renanferr/planets-api/pkg/adding"
 )
 
 type MockHttpClient struct {

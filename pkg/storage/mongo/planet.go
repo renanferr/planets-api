@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/renanferr/swapi-golang-rest-api/pkg/adding"
-	"github.com/renanferr/swapi-golang-rest-api/pkg/listing"
+	"github.com/renanferr/planets-api/pkg/adding"
+	"github.com/renanferr/planets-api/pkg/listing"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -47,7 +47,7 @@ func (s *Storage) AddPlanet(ctx context.Context, p adding.Planet) (string, error
 	ctx, cancel := context.WithTimeout(ctx, s.TimeoutMS)
 	defer cancel()
 
-	if _, err := s.Client.Database(DatabaseName).Collection(PlanetsCollection).InsertOne(ctx, b); err != nil {
+	if _, err := s.Client.Database(s.DatabaseName()).Collection(PlanetsCollection).InsertOne(ctx, b); err != nil {
 		return "", err
 	}
 
@@ -73,7 +73,7 @@ func (s *Storage) GetPlanet(ctx context.Context, id string) (listing.Planet, err
 	ctx, cancel := context.WithTimeout(ctx, s.TimeoutMS)
 	defer cancel()
 
-	collection := s.Client.Database(DatabaseName).Collection(PlanetsCollection)
+	collection := s.Client.Database(s.DatabaseName()).Collection(PlanetsCollection)
 	err = collection.FindOne(ctx, filter).Decode(&p)
 
 	if err != nil {
@@ -98,7 +98,7 @@ func (s *Storage) GetPlanets(ctx context.Context, offset int64, limit int64) ([]
 	ctx, cancel := context.WithTimeout(ctx, s.TimeoutMS)
 	defer cancel()
 
-	collection := s.Client.Database(DatabaseName).Collection(PlanetsCollection)
+	collection := s.Client.Database(s.DatabaseName()).Collection(PlanetsCollection)
 	filter := bson.M{}
 
 	count, err := collection.Count(ctx, filter)

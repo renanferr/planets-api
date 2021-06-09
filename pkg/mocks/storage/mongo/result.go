@@ -1,7 +1,7 @@
 package mongo
 
 import (
-	"github.com/renanferr/swapi-golang-rest-api/pkg/mocks"
+	"github.com/renanferr/planets-api/pkg/mocks"
 	"go.mongodb.org/mongo-driver/bson"
 )
 

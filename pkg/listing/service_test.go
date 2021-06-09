@@ -6,8 +6,8 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/renanferr/swapi-golang-rest-api/pkg/listing"
-	mocks "github.com/renanferr/swapi-golang-rest-api/pkg/mocks/listing"
+	"github.com/renanferr/planets-api/pkg/listing"
+	mocks "github.com/renanferr/planets-api/pkg/mocks/listing"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 

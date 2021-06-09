@@ -1,6 +1,6 @@
 package mongo
 
-import "github.com/renanferr/swapi-golang-rest-api/pkg/storage/mongo"
+import "github.com/renanferr/planets-api/pkg/storage/mongo"
 
 type DatabaseMock struct {
 	Coll mongo.Collection

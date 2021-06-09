@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/renanferr/swapi-golang-rest-api/pkg/mocks"
+	"github.com/renanferr/planets-api/pkg/mocks"
 )
 
 type PlanetsClientMock mocks.Mock

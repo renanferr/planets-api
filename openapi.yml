@@ -1,23 +1,15 @@
 openapi: 3.0.0
 info:
-  description: Example API
+  description: Star Wars Planets API
   version: 1.0.0
   title: Example
 servers:
-  - url: https://swapi-golang-rest-api.herokuapp.com
+  - url: https://planets-api.herokuapp.com/api
     description: Server address
 tags:
   - name: "SWAPI Golang REST API Challenge"
 paths:
-  /healthcheck:
-    get:
-      operationId: "healthcheck"
-      summary: Healthcheck
-      description: "Checks server health"
-      responses:
-          "200":
-            description: "OK"
-  /api/planets/{planetID}:
+  /planets/{planetID}:
     get:
       operationId: "getPlanet"
       summary: Get Planet
@@ -44,7 +36,7 @@ paths:
                 appearances: 5
         "404":
           description: "Not Found"
-  /api/planets:
+  /planets:
     get:
       operationId: "listPlanets"
       summary: List Planets

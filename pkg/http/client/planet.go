@@ -5,7 +5,7 @@ import (
 	"errors"
 	"net/url"
 
-	"github.com/renanferr/swapi-golang-rest-api/pkg/adding"
+	"github.com/renanferr/planets-api/pkg/adding"
 )
 
 // A Planet is a large mass, planet or planetoid in the Star Wars Universe, at the time of 0 ABY.

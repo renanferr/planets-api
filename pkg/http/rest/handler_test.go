@@ -7,8 +7,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	adding_mocks "github.com/renanferr/swapi-golang-rest-api/pkg/mocks/adding"
-	listing_mocks "github.com/renanferr/swapi-golang-rest-api/pkg/mocks/listing"
+	adding_mocks "github.com/renanferr/planets-api/pkg/mocks/adding"
+	listing_mocks "github.com/renanferr/planets-api/pkg/mocks/listing"
 )
 
 func TestHandler(t *testing.T) {

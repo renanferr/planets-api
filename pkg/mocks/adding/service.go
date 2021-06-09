@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 
-	"github.com/renanferr/swapi-golang-rest-api/pkg/adding"
-	"github.com/renanferr/swapi-golang-rest-api/pkg/mocks"
+	"github.com/renanferr/planets-api/pkg/adding"
+	"github.com/renanferr/planets-api/pkg/mocks"
 )
 
 type ServiceMock mocks.Mock

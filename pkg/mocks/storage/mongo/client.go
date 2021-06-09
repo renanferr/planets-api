@@ -3,7 +3,7 @@ package mongo
 import (
 	"context"
 
-	"github.com/renanferr/swapi-golang-rest-api/pkg/storage/mongo"
+	"github.com/renanferr/planets-api/pkg/storage/mongo"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
